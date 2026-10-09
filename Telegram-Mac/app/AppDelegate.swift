@@ -8,6 +8,7 @@ import TGUIKit
 import Quartz
 import MtProtoKit
 import MTProtoRustEngine
+import MTProtoRustEngineMapping
 import CoreServices
 import LocalAuthentication
 import OpenSSLEncryption
@@ -259,6 +260,7 @@ class AppDelegate: NSResponder, NSApplicationDelegate, NSUserNotificationCenterD
     
     private(set) var appEncryption: AppEncryptionParameters!
     private var memoryPressureMonitor: MemoryPressureMonitor?
+    private var rustEngineCrash: CrashedRun?
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         CodeSyntax.initialize()
@@ -479,6 +481,11 @@ class AppDelegate: NSResponder, NSApplicationDelegate, NSUserNotificationCenterD
         let appEncryption = AppEncryptionParameters(path: rootPath)
 
         let accountManager = AccountManager<TelegramAccountManagerTypes>(basePath: containerUrl + "/accounts-metadata", isTemporary: false, isReadOnly: false, useCaches: true, removeDatabaseOnError: true, accessChallenge: makeAccountManagerAccessChallenge(basePath: containerUrl + "/accounts-metadata", isTemporary: false, isReadOnly: false))
+
+        if let crash = self.rustEngineCrash {
+            self.rustEngineCrash = nil
+            let _ = recordRustEngineCrash(accountManager: accountManager, appVersion: ApiEnvironment.version, crashedBundleVersion: crash.bundleVersion, timestamp: crash.timestamp).startStandalone()
+        }
 
         if let deviceSpecificEncryptionParameters = appEncryption.decrypt() {
             let parameters = ValueBoxEncryptionParameters(forceEncryptionIfNoSet: true, key: ValueBoxEncryptionParameters.Key(data: deviceSpecificEncryptionParameters.key)!, salt: ValueBoxEncryptionParameters.Salt(data: deviceSpecificEncryptionParameters.salt)!)
@@ -1356,6 +1363,7 @@ class AppDelegate: NSResponder, NSApplicationDelegate, NSUserNotificationCenterD
     
     private func recoverFromCrashOnLaunchIfNeeded(containerPath: String) {
         let marker = readCrashMarker(folder: containerPath)
+        self.rustEngineCrash = marker?.crashedRun(onThread: rustEngineOwnsThread(named:), orQueue: rustEngineOwnsQueue(label:))
         clearCrashMarker(folder: containerPath)
         guard let marker = marker else {
             return
