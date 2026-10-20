@@ -1,0 +1,42 @@
+import Cocoa
+import TGUIKit
+import Postbox
+import TelegramCore
+import SwiftSignalKit
+import LocalAnimations
+import GeneralRows
+import StatisticsUI
+
+extension MediaAnimatedStickerView: @retroactive StatisticsStickerView {
+
+}
+
+func installStatisticsUIHooks() {
+    StatisticsHooks.install(StatisticsHooks(
+        makeStickerView: { MediaAnimatedStickerView(frame: NSZeroRect) },
+        makeMonetizationController: { context, peerId in
+        FragmentMonetizationController(context: context as! AccountContext, peerId: peerId) },
+        makeStarMonetizationController: { context, peerId in
+        FragmentStarMonetizationController(context: context as! AccountContext, peerId: peerId, revenueContext: nil) },
+        makeBoostStatsController: { context, peerId in
+        ChannelBoostStatsController(context: context as! AccountContext, peerId: peerId) },
+        openPeerInfo: { context, peerId in
+        guard let context = context as? AccountContext else {
+            return
+        }
+        PeerInfoController.push(navigation: context.bindings.rootNavigation(), context: context, peerId: peerId) },
+        makeSharedRowItem: { initialSize, stableId, context, forward, viewType, action in
+        MessageSharedRowItem(initialSize, stableId: stableId, context: context as! AccountContext, forward: forward, viewType: viewType, action: action) },
+        openMessage: { context, messageId in
+        guard let context = context as? AccountContext else {
+            return
+        }
+        context.bindings.rootNavigation().push(ChatAdditionController(context: context, chatLocation: .peer(messageId.peerId), focusTarget: .init(messageId: messageId))) },
+        showStory: { context, peerId, storyId in
+        StoryModalController.ShowSingleStory(context: context as! AccountContext, storyId: .init(peerId: peerId, id: storyId), initialId: nil) },
+        shareLink: { context, link in
+        showModal(with: ShareModalController(ShareLinkObject(context, link: link)), for: context.window) },
+        openGiftSlug: { context, slug in
+        execute(inapp: .gift(link: "", slug: slug, context: context as! AccountContext)) }
+    ))
+}
