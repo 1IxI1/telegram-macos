@@ -872,6 +872,9 @@ final class ChatHeaderBubblesView: View, InteractionContentViewProtocol {
     }
 
     private func sideInsetForCenterContent() -> CGFloat {
+        if chatInteraction.mode == .preview {
+            return Self.sideInset * 2 + Self.bubbleHeight + Self.interBubbleSpacing + 32 + 24
+        }
         return Self.sideInset * 2 + Self.bubbleHeight * 4 + Self.interBubbleSpacing * 4 + 32 + 24
     }
 
@@ -913,6 +916,7 @@ final class ChatHeaderBubblesView: View, InteractionContentViewProtocol {
         let inDoneMode = (menuMode == .done)
         callButton.isHidden = callHidden || inDoneMode
         searchButton.isHidden = searchHidden || inDoneMode
+        menuButton.isHidden = chatInteraction.mode == .preview
 
         let clusterCount = rightCluster.visibleButtonCount
         let clusterWidth = rightCluster.desiredWidth(buttonSize: bubbleHeight)

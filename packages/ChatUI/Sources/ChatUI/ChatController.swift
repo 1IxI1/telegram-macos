@@ -9695,9 +9695,11 @@ open class ChatController<Context: AccountContextProtocol>: TelegramGenericViewC
                 contents.editName?()
             }, itemImage: MenuAnimation.menu_edit.value))
         case .preview:
-            items.append(ContextMenuItem(strings().navigationClose, handler: { [weak self] in
-                self?.navigationController?.modal?.close()
-            }, itemImage: MenuAnimation.menu_clear_history.value))
+            break
+        }
+
+        guard !items.isEmpty else {
+            return nil
         }
 
         for item in items {
