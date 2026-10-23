@@ -1303,7 +1303,7 @@ public class ChatControllerView : View, ChatInputDelegate {
             value = .none
         }
         var translate: ChatPresentationInterfaceState.TranslateState?
-        if interfaceState.peer?.restrictionText(interfaceState.contentSettings) == nil, interfaceState.chatMode != .preview {
+        if interfaceState.peer?.restrictionText(interfaceState.contentSettings) == nil {
             if let translateState = interfaceState.translateState, translateState.canTranslate {
                 if case .search = value {
                     translate = nil
@@ -10186,9 +10186,11 @@ open class ChatController<Context: AccountContextProtocol>: TelegramGenericViewC
                 contents.editName?()
             }, itemImage: MenuAnimation.menu_edit.value))
         case .preview:
-            items.append(ContextMenuItem(strings().navigationClose, handler: { [weak self] in
-                self?.navigationController?.modal?.close()
-            }, itemImage: MenuAnimation.menu_clear_history.value))
+            break
+        }
+
+        guard !items.isEmpty else {
+            return nil
         }
 
         for item in items {
