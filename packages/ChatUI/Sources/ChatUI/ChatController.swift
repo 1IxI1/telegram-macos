@@ -1091,7 +1091,7 @@ public class ChatControllerView : View, ChatInputDelegate {
             value = .none
         }
         var translate: ChatPresentationInterfaceState.TranslateState?
-        if interfaceState.peer?.restrictionText(interfaceState.contentSettings) == nil, interfaceState.chatMode != .preview {
+        if interfaceState.peer?.restrictionText(interfaceState.contentSettings) == nil {
             if let translateState = interfaceState.translateState, translateState.canTranslate {
                 if case .search = value {
                     translate = nil
