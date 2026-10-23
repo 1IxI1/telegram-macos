@@ -299,7 +299,9 @@ public final class ChatLiveTranslateContext {
             var translationState = translationState
             if let peer = peer {
                 if !peer.isPremium {
-                    translationState?.paywall = true
+                    let showPaywall = settings.paywall?.show ?? true
+                    translationState?.paywall = showPaywall
+                    isHidden = isHidden || !showPaywall
                 } else {
                     translationState?.paywall = false
                 }
