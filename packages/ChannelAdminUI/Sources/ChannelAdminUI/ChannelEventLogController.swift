@@ -371,7 +371,7 @@ private func eventLogItems(_ entries:[ChannelAdminEventLogEntry], state: State, 
     
     
     items.insert(GeneralRowItem(.zero, height: 60, stableId: -1000, backgroundColor: .clear), at: 0)
-    items.append(GeneralRowItem(.zero, height: 10, stableId: 1000, backgroundColor: .clear))
+    items.append(GeneralRowItem(.zero, height: NavigationBarStyle.defaultHeight + 10, stableId: 1000, backgroundColor: .clear))
     
     for (i, item) in items.enumerated() {
         _ = item.makeSize(initialSize.width, oldWidth: initialSize.width)
