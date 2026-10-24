@@ -13,10 +13,5 @@
 	<true/>
 	<key>com.apple.security.network.client</key>
 	<true/>
-	<key>keychain-access-groups</key>
-	<array>
-		<string>6N38VWS5BX.ru.keepcoder.TelegramShare</string>
-		<string>6N38VWS5BX.ru.keepcoder.Telegram</string>
-	</array>
 </dict>
 </plist>
