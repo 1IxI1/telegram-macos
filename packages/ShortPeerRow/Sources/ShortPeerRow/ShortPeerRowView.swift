@@ -489,7 +489,7 @@ open class ShortPeerRowView: TableRowView, Notifable, ViewDisplayDelegate {
 
             if let avatarRemoveControl {
                 avatarRemoveControl.frame = image.frame
-                avatarRemoveControl.layer?.cornerRadius = image.frame.height / 2
+                avatarRemoveControl.layer?.mask?.frame = avatarRemoveControl.bounds
                 avatarRemoveControl.updateState()
             }
             
@@ -861,6 +861,12 @@ open class ShortPeerRowView: TableRowView, Notifable, ViewDisplayDelegate {
                 control.set(background: .clear, for: .Normal)
                 control.set(background: NSColor.black.withAlphaComponent(0.6), for: .Hover)
                 control.set(background: NSColor.black.withAlphaComponent(0.7), for: .Highlight)
+                let mask = SimpleLayer()
+                mask.contentsGravity = .resizeAspectFill
+                control.layer?.mask = mask
+                image.contentUpdated = { [weak mask] contents in
+                    mask?.contents = contents
+                }
                 control.set(handler: { [weak self] _ in
                     guard let item = self?.item as? ShortPeerRowItem, item.enabled else {
                         return
@@ -870,6 +876,7 @@ open class ShortPeerRowView: TableRowView, Notifable, ViewDisplayDelegate {
                 container.addSubview(control)
                 avatarRemoveControl = control
             }
+            control.layer?.mask?.contents = image.avatar.imageContents
             let icon = TelegramThemeHooks.shared.image(.iconPipClose).precomposed(.white)
             control.set(image: icon, for: .Hover)
             control.set(image: icon, for: .Highlight)
@@ -877,6 +884,7 @@ open class ShortPeerRowView: TableRowView, Notifable, ViewDisplayDelegate {
         } else if let avatarRemoveControl {
             avatarRemoveControl.removeFromSuperview()
             self.avatarRemoveControl = nil
+            image.contentUpdated = nil
         }
         
         let transition: ContainedViewLayoutTransition = animated ? .animated(duration: 0.2, curve: .easeOut) : .immediate
